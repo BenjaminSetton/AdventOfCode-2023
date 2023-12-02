@@ -4,5 +4,6 @@
 
 struct Challenge
 {
-	virtual int Run(std::vector<std::string> input) = 0;
+	typedef std::vector<std::string> Input;
+	virtual int Run(Input input) = 0;
 };
