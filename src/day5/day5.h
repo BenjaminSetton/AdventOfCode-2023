@@ -97,6 +97,7 @@
 
 #include <assert.h>
 #include <algorithm>
+#include <thread>
 #include <map>
 #include <unordered_map>
 
@@ -239,6 +240,9 @@ struct Day5_1 : public Challenge
 	}
 };
 
+// Stores the source number as the key, and the value is a pair of <destinationNumber, length>
+typedef std::map<uint64_t, std::pair<uint64_t, uint64_t>> MapType;
+
 struct Day5_2 : public Challenge
 {
 	void ConvertStringToNumberList(std::string input, std::vector<uint64_t>& out_vec)
@@ -270,11 +274,40 @@ struct Day5_2 : public Challenge
 		}
 	}
 
+	static void Thread_Calculate(uint64_t start, uint64_t length, const std::vector<MapType>& MapList, uint64_t* out_min)
+	{
+		for (uint64_t i = 0; i < length; i++)
+		{
+			uint64_t mappedSeedNumber = start + i;
+			//std::cout << "Start seed: " << mappedSeedNumber << std::endl;
+			for (const auto& map : MapList)
+			{
+				// Find the mapped number
+				for (const auto& iter : map)
+				{
+					uint64_t src = iter.first;
+					uint64_t dest = iter.second.first;
+					uint64_t len = iter.second.second;
+
+					// This mapping works since the number is between the current src value and src + len
+					if (mappedSeedNumber >= src && mappedSeedNumber < src + len)
+					{
+						uint64_t offset = mappedSeedNumber - src;
+						//std::cout << "\t" << "Mapped " << mappedSeedNumber << " to " << dest + offset << std::endl;
+						mappedSeedNumber = dest + offset;
+						break;
+					}
+				}
+			}
+
+			//std::cout << "End seed: " << mappedSeedNumber << std::endl;
+			*out_min = std::min(*out_min, mappedSeedNumber);
+			//std::cout << "Lowest: " << lowestLocation << std::endl;
+		}
+	}
+
 	int Run(Input input)
 	{
-		// Stores the source number as the key, and the value is a pair of <destinationNumber, length>
-		typedef std::map<uint64_t, std::pair<uint64_t, uint64_t>> MapType;
-
 		// There are 7 map types total
 		std::vector<MapType> MapList;
 		MapList.resize(7);
@@ -342,37 +375,28 @@ struct Day5_2 : public Challenge
 		}
 
 		// Find the lowest location by iterating over all maps
-		uint64_t lowestLocation = std::numeric_limits<uint64_t>::max();
-		for (const auto& seedPair : seedList)
+		std::vector<uint64_t> threadResults;
+		threadResults.resize(seedList.size());
+		std::fill(threadResults.begin(), threadResults.end(), std::numeric_limits<uint64_t>::max());
+
+		std::vector<std::thread> threads;
+		for (int i = 0; i < seedList.size(); i++)
 		{
-			for (uint64_t i = 0; i < seedPair.second; i++)
-			{
-				uint64_t mappedSeedNumber = seedPair.first + i;
-				//std::cout << "Start seed: " << mappedSeedNumber << std::endl;
-				for (const auto& map : MapList)
-				{
-					// Find the mapped number
-					for (const auto& iter : map)
-					{
-						uint64_t src = iter.first;
-						uint64_t dest = iter.second.first;
-						uint64_t len = iter.second.second;
+			const auto& seedPair = seedList[i];
+			std::thread thread(Thread_Calculate, seedPair.first, seedPair.second, MapList, &threadResults[i]);
+			threads.push_back(std::move(thread));
+		}
 
-						// This mapping works since the number is between the current src value and src + len
-						if (mappedSeedNumber >= src && mappedSeedNumber < src + len)
-						{
-							uint64_t offset = mappedSeedNumber - src;
-							//std::cout << "\t" << "Mapped " << mappedSeedNumber << " to " << dest + offset << std::endl;
-							mappedSeedNumber = dest + offset;
-							break;
-						}
-					}
-				}
+		for (auto& thread : threads)
+		{
+			thread.join();
+		}
 
-				//std::cout << "End seed: " << mappedSeedNumber << std::endl;
-				lowestLocation = std::min(lowestLocation, mappedSeedNumber);
-				//std::cout << "Lowest: " << lowestLocation << std::endl;
-			}
+		// Read the results and find the minimum
+		uint64_t lowestLocation = std::numeric_limits<uint64_t>::max();
+		for (const auto& result : threadResults)
+		{
+			lowestLocation = std::min(result, lowestLocation);
 		}
 
 		std::cout << "Result: " << lowestLocation << std::endl;
