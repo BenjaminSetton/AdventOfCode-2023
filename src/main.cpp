@@ -4,9 +4,9 @@
 #include <iostream>
 #include <vector>
 
-#include "day8/day8.h"
+#include "day9/day9.h"
 
-static const std::string inputFilePath = "../../src/day8/input8_2.txt";
+static const std::string inputFilePath = "../../src/day9/input9_2.txt";
 
 int main()
 {
@@ -27,7 +27,7 @@ int main()
 		input.push_back(buffer);
 	}
 
-	Day8_2 challenge;
+	Day9_2 challenge;
 	std::cout << "Output: " << challenge.Run(input) << std::endl;
 
 	fileHandle.close();
