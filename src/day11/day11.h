@@ -312,7 +312,7 @@ struct Day11_2 : public Challenge
 				x = x + xi;
 				tileAfterMovement = input[y][x];
 				D = D + (2 * (dx - dy));
-				if (tileAfterMovement == 'Y' || tileAfterMovement == 'Z' || tileAfterMovement == 'X')
+				if (tileAfterMovement == 'Y' || tileAfterMovement == 'Z' || tileAfterMovement == 'X') 
 				{
 					steps += EMPTY_SPACE + 1;  // Can't take diagonal steps
 
