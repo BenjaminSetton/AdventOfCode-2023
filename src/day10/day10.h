@@ -764,38 +764,10 @@ struct Day10_2 : public Challenge
 				}
 			}
 
-
-
-			//std::cout << "\n\n";
-			//auto tempCur = input[currentPosition.y][currentPosition.x];
-			//auto tempPrev = input[prevPos.y][prevPos.x];
-			//auto tempNext = input[currentPosition.y + currTile.y][currentPosition.x + currTile.x];
-			//input[prevPos.y][prevPos.x] = '-';
-			//input[currentPosition.y][currentPosition.x] = '$';
-			//input[currentPosition.y + currTile.y][currentPosition.x + currTile.x] = '+';
-			//PrintInput(&input);
-			//input[prevPos.y][prevPos.x] = tempPrev;
-			//input[currentPosition.y][currentPosition.x] = tempCur;
-			//input[currentPosition.y + currTile.y][currentPosition.x + currTile.x] = tempNext;
-			//std::cout << "\n\n";
-			//std::cout << "Current heading: " << heading.x << ", " << heading.y << "\n\n";
-
 			prevPos = currentPosition;
 			currentPosition += currTile;
 			prevTile = currTile;
 		}
-
-		// Final pass, anything NOT an 'O', an 'I' or a '*' counts as an internal thing
-		//for (auto& line : input)
-		//{
-		//	for (auto& c : line)
-		//	{
-		//		if (c != 'I' && c != 'O' && c != '*')
-		//		{
-		//			c = 'I';
-		//		}
-		//	}
-		//}
 
 		std::cout << "\n\n Flood fill using separating axis\n\n";
 		PrintInput(&input);
